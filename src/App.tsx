@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
 import { position } from './types';
-import { isElementAccessExpression } from 'typescript';
 import assert from 'assert';
 
 function checkMove(piece: string, x1: number, y1: number, x2: number, y2: number){
@@ -33,26 +32,28 @@ function App() {
                                       ['W', 'W', 'W', 'W', 'R', '0']])
   const [toMove, setToMove] = useState<position | null>(null)
 
-  function moveStart(x: number, y: number){
-    const newToMove: position = {x: x, y: y};
+  function moveStart(pos: position){
+    const {row, col} = pos;
+    const newToMove: position = {row: row, col: col};
     setToMove(newToMove);
   }
 
-  function moveEnd(x: number, y: number){
+  function moveEnd(pos: position){
+    const {row, col} = pos;
     assert(toMove);
-    const canMove = checkMove(board[toMove.x][toMove.y], toMove.x, toMove.y, x, y);
+    const canMove = checkMove(board[toMove.row][toMove.col], toMove.row, toMove.col, row, col);
     if(canMove){
       const newBoard = board;
-      newBoard[x][y] = newBoard[toMove.x][toMove.y];
-      newBoard[toMove.x][toMove.y] = '0';
+      newBoard[row][col] = newBoard[toMove.row][toMove.col];
+      newBoard[toMove.row][toMove.col] = '0';
       setBoard(newBoard);
     }
     setToMove(null);
   }
 
   function handleClick(pos: position){
-    const {x, y} = pos;
-    const selected:string = board[x][y];
+    const {row, col} = pos;
+    const selected:string = board[row][col];
     if(selected === 'W'){
       setToMove(null);
       return;
@@ -61,26 +62,26 @@ function App() {
       if(selected === '0'){
         return;
       }
-      moveStart(x, y);
+      moveStart(pos);
     }
     else{
       if(selected === '0'){
-        moveEnd(x, y);
+        moveEnd(pos);
       }
       else{
-        if(toMove.x === x && toMove.y === y){
+        if(toMove.row === row && toMove.row === col){
           setToMove(null);
         }
         else{
-          moveStart(x, y);
+          moveStart(pos);
         }
       }
     }
   }
   
-  function  handleDrag(pos: position){
-    const {x, y} = pos;
-    const selected:string = board[x][y];
+  function handleDrag(pos: position){
+    const {row, col} = pos;
+    const selected:string = board[row][col];
     if(selected === 'W'){
       setToMove(null);
       return;
@@ -88,36 +89,36 @@ function App() {
     if(selected === '0'){
       return;
     }
-    moveStart(x, y);
+    moveStart(pos);
   }
   
   function handleDrop(pos: position){
-    const {x, y} = pos;
-    const selected: string = board[x][y];
+    const {row, col} = pos;
+    const selected: string = board[row][col];
 
     if(selected !== '0'){
       setToMove(null);
       return;
     }
-    moveEnd(x, y);
+    moveEnd(pos);
   }
+
   return (
     <div className='flex items-center justify-center mt-16'>
     <div>
       {
-        board.map((value, x)=>{
+        board.map((value, row)=>{
           return(
             <div className='flex items-center'>
               {
-            value.map((value, y) =>{
-
+            value.map((value, col) =>{
               return(
-                <div onClick={() => {handleClick({x: x, y: y})}} onDragStart={() => {handleDrag({x: x, y: y})}} onDragOver={e => e.preventDefault()} onDrop={()=>{handleDrop({x: x, y: y})}}>
+                <div onClick={() => {handleClick({row: row, col: col})}} onDragStart={() => {handleDrag({row: row, col: col})}} onDragOver={e => e.preventDefault()} onDrop={()=>{handleDrop({row: row, col: col})}}>
                 {
                   value === 'W'?
-                  <div className='w-40 h-40 bg-white'></div>
+                  <div className='w-16 lg:w-40 h-16 lg:h-40 bg-white'></div>
                   :
-                  <div className={`w-40 h-40 ${ (toMove && x === toMove.x && y === toMove.y)? (x+y)%2===0 ? 'bg-selectedlight' : 'bg-selecteddark': (x+y)%2===0 ? 'bg-light' : 'bg-dark'}`}>
+                  <div className={`w-16 lg:w-40 h-16 lg:h-40 ${ (toMove && row === toMove.row && col === toMove.col)? (row+col)%2===0 ? 'bg-selectedlight' : 'bg-selecteddark': (row+col)%2===0 ? 'bg-light' : 'bg-dark'}`}>
                     {
                       value === '0'?
                       <div/>
