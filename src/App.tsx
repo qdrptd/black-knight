@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
 import { position } from './types';
+import { isElementAccessExpression } from 'typescript';
+import assert from 'assert';
 
 function checkMove(piece: string, x1: number, y1: number, x2: number, y2: number){
   const dx: number = Math.abs(x2-x1), dy: number = Math.abs(y2-y1);
@@ -30,43 +32,74 @@ function App() {
                                       ['N', 'N', 'N', 'N', 'R', 'R'],
                                       ['W', 'W', 'W', 'W', 'R', '0']])
   const [toMove, setToMove] = useState<position | null>(null)
-  function clickEvent(x: number ,y: number){
-    const selected:string = board[x][y];
-    if(selected === 'W') return;
 
+  function moveStart(x: number, y: number){
+    const newToMove: position = {x: x, y: y};
+    setToMove(newToMove);
+  }
+
+  function moveEnd(x: number, y: number){
+    assert(toMove);
+    const canMove = checkMove(board[toMove.x][toMove.y], toMove.x, toMove.y, x, y);
+    if(canMove){
+      const newBoard = board;
+      newBoard[x][y] = newBoard[toMove.x][toMove.y];
+      newBoard[toMove.x][toMove.y] = '0';
+      setBoard(newBoard);
+    }
+    setToMove(null);
+  }
+
+  function handleClick(pos: position){
+    const {x, y} = pos;
+    const selected:string = board[x][y];
+    if(selected === 'W'){
+      setToMove(null);
+      return;
+    }
     if(!toMove){
       if(selected === '0'){
         return;
       }
-      const newToMove: position = {x: x, y: y};
-      setToMove(newToMove);
+      moveStart(x, y);
     }
     else{
       if(selected === '0'){
-        const canMove = checkMove(board[toMove.x][toMove.y], toMove.x, toMove.y, x, y);
-        if(canMove){
-          const newBoard = board;
-          newBoard[x][y] = newBoard[toMove.x][toMove.y];
-          newBoard[toMove.x][toMove.y] = '0';
-          setBoard(newBoard);
-          setToMove(null);
-        }
-        else{
-          setToMove(null);
-        }
+        moveEnd(x, y);
       }
       else{
         if(toMove.x === x && toMove.y === y){
           setToMove(null);
         }
         else{
-          const newToMove: position = {x: x, y: y};
-          setToMove(newToMove);
+          moveStart(x, y);
         }
       }
     }
   }
   
+  function  handleDrag(pos: position){
+    const {x, y} = pos;
+    const selected:string = board[x][y];
+    if(selected === 'W'){
+      setToMove(null);
+      return;
+    }
+    if(selected === '0'){
+      return;
+    }
+    moveStart(x, y);
+  }
+  
+  function handleDrop(pos: position){
+    const {x, y} = pos;
+    const selected: string = board[x][y];
+
+    if(selected === 'W'){
+      return;
+    }
+    moveEnd(x, y);
+  }
   return (
     <div className='flex items-center justify-center mt-16'>
     <div>
@@ -78,7 +111,7 @@ function App() {
             value.map((value, y) =>{
 
               return(
-                <div onClick={() => {clickEvent(x, y)}}>
+                <div onClick={() => {handleClick({x: x, y: y})}} onDragStart={() => {handleDrag({x: x, y: y})}} onDragOver={e => e.preventDefault()} onDrop={()=>{handleDrop({x: x, y: y})}}>
                 {
                   value === 'W'?
                   <div className='w-40 h-40 bg-white'></div>
