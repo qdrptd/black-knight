@@ -95,7 +95,8 @@ function App() {
     const {x, y} = pos;
     const selected: string = board[x][y];
 
-    if(selected === 'W'){
+    if(selected !== '0'){
+      setToMove(null);
       return;
     }
     moveEnd(x, y);
