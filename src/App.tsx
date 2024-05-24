@@ -51,6 +51,9 @@ function App() {
           setBoard(newBoard);
           setToMove(null);
         }
+        else{
+          setToMove(null);
+        }
       }
       else{
         if(toMove.x === x && toMove.y === y){
