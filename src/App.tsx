@@ -118,7 +118,7 @@ function App() {
                   value === 'W'?
                   <div className='w-16 lg:w-40 h-16 lg:h-40 bg-white'></div>
                   :
-                  <div className={`w-16 lg:w-40 h-16 lg:h-40 ${ (toMove && row === toMove.row && col === toMove.col)? (row+col)%2===0 ? 'bg-selectedlight' : 'bg-selecteddark': (row+col)%2===0 ? 'bg-light' : 'bg-dark'}`}>
+                  <div className={`w-16 lg:w-40 h-16 lg:h-40 ${ (row === 2 && col === 5) ? (toMove && row === toMove.row && col === toMove.col ? 'bg-selectedgoal': 'bg-goal'): (toMove && row === toMove.row && col === toMove.col)? (row+col)%2===0 ? 'bg-selectedlight' : 'bg-selecteddark': (row+col)%2===0 ? 'bg-light' : 'bg-dark'}`}>
                     {
                       value === '0'?
                       <div/>
