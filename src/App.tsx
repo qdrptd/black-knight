@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { position } from './types';
 import assert from 'assert';
+import Modal from './modal';
 
 function checkMove(piece: string, x1: number, y1: number, x2: number, y2: number){
   const dx: number = Math.abs(x2-x1), dy: number = Math.abs(y2-y1);
@@ -31,6 +32,7 @@ function App() {
                                       ['N', 'N', 'N', 'N', 'R', 'R'],
                                       ['W', 'W', 'W', 'W', 'R', '0']])
   const [toMove, setToMove] = useState<position | null>(null)
+  const [moves, setMoves] = useState(0);
 
   function moveStart(pos: position){
     const {row, col} = pos;
@@ -48,6 +50,7 @@ function App() {
       newBoard[toMove.row][toMove.col] = '0';
       setBoard(newBoard);
     }
+    setMoves((moves)=>{return moves+1;});
     setToMove(null);
   }
 
@@ -69,7 +72,7 @@ function App() {
         moveEnd(pos);
       }
       else{
-        if(toMove.row === row && toMove.row === col){
+        if(toMove.row === row && toMove.col === col){
           setToMove(null);
         }
         else{
@@ -138,6 +141,15 @@ function App() {
         })
       }
     </div>
+    {
+      board[2][5]==="M"
+      ?
+      <div>
+        <Modal moves={moves}></Modal>
+      </div>
+      : 
+      <div/>
+    }
     </div>
   );
 }
